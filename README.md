@@ -138,7 +138,9 @@ All features we use — such as `damageshare`, `golddiffat10`, `visionscore`, an
 
 ## Baseline Model
 
-The baseline model uses 4 features: `kill_participation` (created from kills/assists/teamkills), `damageshare`, `earnedgoldshare`, and `visionscore`, all run through a `StandardScaler` + `LogisticRegression` Pipeline. These are all quantitative features, so there's no categorical encoding needed here.
+The baseline model uses 4 features: `kill_participation` (created from (kills + assists) / teamkills), `damageshare`, `earnedgoldshare`, and `visionscore`, all run through a `StandardScaler` + `LogisticRegression` Pipeline. These are all quantitative features, so there's no categorical encoding needed here.
+
+We split our dataset into training and testing data where test_size = 0.2. We trained our data using the training set and then used our model to predict winnning or losing on the test set. This is to account for our model being able to generalize to unseen data and for future pro play matches.
 
 This baseline model has an accuracy of 0.5332, which is not much better than the constant model's accuracy of 0.5. This implies that these stats alone are definitely not great for predicting win/loss. Thinking about it a bit more, maybe these stats alone would be better for a different problem, predicting a player's role from stats. Although that model wouldn't be very useful.
 
@@ -146,17 +148,30 @@ This baseline model has an accuracy of 0.5332, which is not much better than the
 
 ## Final Model
 
-**Model choice**: Random Forest outperformed both Logistic Regression and an untuned Decision Tree on the final feature set, so it was selected as the final model.
+**Model choice**: We also created a Decision Tree model and alongside, a Random Forest model to compare to the performance of the logistic regression model. We decided yo use a decision tree to capture non-lineat splits and use a random forest to average many decision trees to reduce overfitting and capture complex interactions.
+
+The Random Forest model outperformed both Logistic Regression and an untuned Decision Tree on the final feature set, so it was selected as the final model. A random forest model combines multiple decission trees to make a single result.
+
+We used a fixed train/test split using random_state = 42 to ensure a fair comparison. Our model was compared based on test accuracy as stated above
 
 **Hyperparameters tuned** via `GridSearchCV` (5-fold CV):
-- `n_estimators`: number of trees in the forest
+- `n_estimators`: number of trees in the forest where more trees lead to more stability
 - `max_depth`: maximum depth of each tree (controls overfitting)
 
 **New engineered features**:
 - `damage_efficiency`: `damagetochampions / (deaths + 1)`, measures how much damage a player deals per death (adding 1 to avoid division by zero). A high value means the player is dealing a lot of damage while dying infrequently — buying the right items and playing efficiently.
-- `carry_impact`: a weighted score (kill participation 35%, damage share 30%, earned gold share 20%, damage efficiency 10%, vision score 5%) to quantify a player's overall impact. Higher weights on kill participation and damage share, since kills matter the most in LoL, kinda like home runs vs almost anything else for a baseball player.
+- `carry_impact`: a weighted score (kill participation 35%, damage share 30%, earned gold share 20%, damage efficiency 10%, vision score 5%) to quantify a player's overall impact. Higher weights on kill participation and damage share, since kills matter the most in League of Legends, kinda like home runs vs almost anything else for a baseball player.
 
-These two features add non-linear relationships that raw stats alone do not capture, which is why the Random Forest achieves higher accuracy than the baseline Logistic Regression model.
+These two features add non-linear relationships that raw stats alone do not capture, which is why the Random Forest achieves higher accuracy than the baseline Logistic Regression model. We also kept the features that we used in the baseline model as well: `kill_participation`, `damageshare`, `earnedgoldshare`, and `visionscore`.
+
+This model improved over our Baseline model due to
+- Better feature representation (through our added feature engineering)
+- Captured interactions (due to random forest combinations instead of simple linear/logestic models)
+- Reduced noise
+
+<iframe src="assets/confusion_matrix.html" width="800" height="500" frameborder="0"></iframe>
+
+By this confusion matrix, a figure to evaluate our classification model, our model performs well on both classes making it strong and balanced on predicitive performance, minimizing error rates.
 
 ---
 
