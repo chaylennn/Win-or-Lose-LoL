@@ -33,7 +33,7 @@ The dataset we are using consists of match-level and player-level data from 2025
 
 ## Data Cleaning and Exploratory Data Analysis
 
-We filtered the dataset to player rows only (removing the 2 team summary rows per game), converted binary columns (e.g. `firstblood`, `playoffs`) from 0/1 floats to booleans, and parsed the `date` column into a datetime type.
+For each League of Legends game there are 12 rows: 10 for each player and 2 for team summary. Because the team summary row is comprised of the game statistics of the players, we filtered the dataset to player rows only (removing the 2 team summary rows per game). We also converted binary columns (e.g. `firstblood`, `playoffs`) from 0/1 floats to booleans, and parsed the `date` column into a datetime type. These changes were made to make analysis easier and make the columns more readable.
 
 Here is a sample of the cleaned DataFrame:
 
@@ -49,21 +49,21 @@ Here is a sample of the cleaned DataFrame:
 
 <iframe src="assets/damageshare_by_role.html" width="800" height="500" frameborder="0"></iframe>
 
-The overall damage share distribution looks like an unusual multi-modal shape. Once broken down by role, the pattern makes sense — each role has its own distinct damage share distribution, kinda like how if we graphed shots on goal in soccer on all players, the defenders would be included with the attackers so the histogram would look like overlaid separate distributions.
+The overall damage share distribution looks like an unusual multi-modal shape. Once broken down by role, the pattern makes sense — each role has its own distinct damage share distribution, kinda like how if we graphed shots on goal in soccer on all players, the defenders would be included with the attackers so the histogram would look like overlaid separate distributions. Support has overall lower damage share for example because their role in the game is provide buffs and protect the other players on the team. It is also interesting to note that the variance in each of the role's distributions with supports having the least (they roughly do around the same damage) while bot has the largest spread (some bot laners do way more than others) 
 
 <iframe src="assets/visionscore_by_role.html" width="800" height="500" frameborder="0"></iframe>
 
-Looks like supports are the primary vision getters — their vision score distribution is far higher than all other roles, reflecting their ward-focused playstyle.
+Looks like supports are the primary vision getters — their vision score distribution is far higher than all other roles, reflecting their ward-focused playstyle. As stated above, supports do not contribute much damage, but they provide vision on the map to provide knowledge to the rest of the team. The distributions flipped between vision and damage between the highest and lowest distribution of damage/vision.
 
 ### Bivariate Analysis
 
 <iframe src="assets/golddiff_by_result.html" width="800" height="500" frameborder="0"></iframe>
 
-Players on winning teams have a noticeably higher gold difference at 10 minutes on average, suggesting early gold leads correlate with wins.
+Gold is the in game currency that players recieve for obtaining kills/assists, objectives, and creep score (killing enemy minions, jungle monstrs, etc.). This currency is then used to buy in-game items that help the individual scale their player stats (stat increases include). Players on winning teams have a noticeably higher gold difference at 10 minutes on average, suggesting early gold leads correlate with winning the game.
 
 <iframe src="assets/damageshare_by_position.html" width="800" height="500" frameborder="0"></iframe>
 
-Damage share varies a lot by role — supports do less damage while carries (bot, mid) do more. Winners tend to have slightly higher damage shares than losers across most roles.
+Damage share varies a lot by role — supports do less damage while carries (bot, mid) do more. Winners tend to have slightly higher damage shares than losers across most roles, but they generall have around the same mean.
 
 ### Interesting Aggregates
 
@@ -77,7 +77,7 @@ Average damage share, earned gold share, and vision score by role:
 | sup | 0.086 | 0.091 | 67.4 |
 | top | 0.205 | 0.255 | 20.8 |
 
-Supports have drastically lower damage share and gold share but dominate vision score — this role specialization is central to understanding why our baseline model struggled.
+Supports have drastically lower damage share and gold share but dominate vision score. Game stats vary by postion; What is considered "winning" in one role differs from the stats of winning in a different role. This role specialization is central to understanding why our baseline model struggled.
 
 ---
 
@@ -109,6 +109,9 @@ Strangely, it looks like all the missing `golddiffat10` is all in LPL, China's l
 
 ## Hypothesis Testing
 
+In a game of League of Legends, teams are places on two sides of the map: the red side which covers the bottom left side, and the blue side covers the top right side of the map. The game randomly decides which team is going to be on what side. Players are given a differing view of the map (upward or downward view) and their distances to objectives are different. Besides this, both sides are relatively same but are flipped and mirrored versions of each other.  However, we are curious if one side has a higher win rate than the other even though they are set up to be equal. We pose these set of hypotheses:
+
+
 **Null hypothesis**: The blue side and red side have the same likelihood of winning in any pro LoL game.
 
 **Alternative hypothesis**: The blue side is more likely to win than the red side in any pro LoL game.
@@ -117,7 +120,7 @@ Strangely, it looks like all the missing `golddiffat10` is all in LPL, China's l
 
 **Significance level**: 0.05
 
-We reject the null hypothesis with a p-value of < 0.0001 — there seems to be an advantage of blue side in pro play.
+After conducting a hypothesis test with 10,000 trials, we concluded that we can reject the null hypothesis with a p-value of < 0.0001. There seems to be an advantage of blue side in pro play.
 
 ---
 
