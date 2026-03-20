@@ -208,4 +208,4 @@ Since a lot of our player performance metrics are based on damage and kills, a v
 
 **Significance level**: 0.05
 
-Based on the p-value of 0.003 we reject the null and conclude the model has a higher false negative rate for supports, unfairly underpredicting wins for support players.
+Based on the p-value of 0.003 we reject the null, which suggests that the model has a higher false negative rate for supports, unfairly underpredicting wins for support players.
