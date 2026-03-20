@@ -49,17 +49,17 @@ Here is a sample of the cleaned DataFrame:
 
 <iframe src="assets/damageshare_by_role.html" width="800" height="500" frameborder="0"></iframe>
 
-The overall damage share distribution looks like an unusual multi-modal shape. Once broken down by role, the pattern makes sense — each role has its own distinct damage share distribution, kinda like how if we graphed shots on goal in soccer on all players, the defenders would be included with the attackers so the histogram would look like overlaid separate distributions. Support has overall lower damage share for example because their role in the game is provide buffs and protect the other players on the team. It is also interesting to note that the variance in each of the role's distributions with supports having the least (they roughly do around the same damage) while bot has the largest spread (some bot laners do way more than others) 
+The overall damage share distribution looks like an unusual multi-modal shape. Once broken down by role, the pattern makes sense: each role has its own distinct damage share distribution, kind of like how if we graphed shots on goal in soccer on all players, the defenders would be included with the attackers so the histogram would look like overlaid separate distributions. Support has overall lower damage share for example because their role in the game is provide buffs and protect the other players on the team. It is also interesting to note that the variance in each of the role's distributions with supports having the least (they roughly do around the same damage) while bot has the largest spread (some bot laners do way more than others) 
 
 <iframe src="assets/visionscore_by_role.html" width="800" height="500" frameborder="0"></iframe>
 
-Looks like supports are the primary vision getters — their vision score distribution is far higher than all other roles, reflecting their ward-focused playstyle. As stated above, supports do not contribute much damage, but they provide vision on the map to provide knowledge to the rest of the team. The distributions flipped between vision and damage between the highest and lowest distribution of damage/vision.
+Looks like supports are the primary vision getters, their vision score distribution is far higher than all other roles reflecting their ward-focused playstyle. As stated above, supports do not contribute much damage, but they provide vision on the map to provide knowledge to the rest of the team. The distributions flipped between vision and damage between the highest and lowest distribution of damage/vision.
 
 ### Bivariate Analysis
 
 <iframe src="assets/golddiff_by_result.html" width="800" height="500" frameborder="0"></iframe>
 
-Gold is the in game currency that players recieve for obtaining kills/assists, objectives, and creep score (killing enemy minions, jungle monstrs, etc.). This currency is then used to buy in-game items that help the individual scale their player stats (stat increases include). Players on winning teams have a noticeably higher gold difference at 10 minutes on average, suggesting early gold leads correlate with winning the game.
+Gold is the in game currency that players recieve for obtaining kills/assists, objectives, and creep score (killing enemy minions, jungle monsters, etc.). This currency is then used to buy in-game items that help the individual scale their player stats (stat increases include attack damage, movement speed, health, etc.). Players on winning teams have a noticeably higher gold difference at 10 minutes on average, suggesting early gold leads correlate with winning the game.
 
 <iframe src="assets/damageshare_by_position.html" width="800" height="500" frameborder="0"></iframe>
 
@@ -77,7 +77,7 @@ Average damage share, earned gold share, and vision score by role:
 | sup | 0.086 | 0.091 | 67.4 |
 | top | 0.205 | 0.255 | 20.8 |
 
-Supports have drastically lower damage share and gold share but dominate vision score. Game stats vary by postion; What is considered "winning" in one role differs from the stats of winning in a different role. This role specialization is central to understanding why our baseline model struggled.
+Supports have drastically lower damage share and gold share but dominate vision score. Game stats vary by postion; What is considered "winning" in one role is different from the stats of winning in a different role. This role specialization is central to understanding why our baseline model struggled.
 
 ---
 
@@ -97,9 +97,19 @@ We picked `golddiffat10` as our column to analyze, since around 8% of player row
 - **Alternate Hypothesis 2**: The distribution of position differs between rows where golddiffat10 is missing vs. not missing.
 - **Significance level**: α = 0.05
 
-The league permutation test yields a very small p-value of < 0.0001, so we **reject the null** — missingness of `golddiffat10` is **MAR on league** (some leagues consistently have incomplete early-game data).
+The league permutation test yields a very small p-value of < 0.0001, so we **reject the null**: missingness of `golddiffat10` is **MAR on league** (some leagues consistently have incomplete early-game data).
 
-The position permutation test yields a p-value of 1.0, so we **fail to reject the null** — missingness does **not depend on position**, which makes sense since all players in a game share the same data completeness.
+<iframe src="assets/tvd_league.html" width="800" height="500" frameborder="0"></iframe>
+
+The observed TVD for `league` falls far outside the null distribution — none of the 10,000 simulations came close, confirming the dependency.
+
+The position permutation test yields a p-value of 1.0, so we **fail to reject the null**: missingness does **not depend on position**, which makes sense since all players in a game share the same data completeness.
+
+<iframe src="assets/tvd_position.html" width="800" height="500" frameborder="0"></iframe>
+
+The observed TVD for `position` sits right in the middle of the null distribution, confirming there is no dependency.
+
+<iframe src="assets/missingness_by_position.html" width="800" height="500" frameborder="0"></iframe>
 
 <iframe src="assets/missingness_by_league.html" width="800" height="500" frameborder="0"></iframe>
 
@@ -109,7 +119,7 @@ Strangely, it looks like all the missing `golddiffat10` is all in LPL, China's l
 
 ## Hypothesis Testing
 
-In a game of League of Legends, teams are places on two sides of the map: the red side which covers the bottom left side, and the blue side covers the top right side of the map. The game randomly decides which team is going to be on what side. Players are given a differing view of the map (upward or downward view) and their distances to objectives are different. Besides this, both sides are relatively same but are flipped and mirrored versions of each other.  However, we are curious if one side has a higher win rate than the other even though they are set up to be equal. We pose these set of hypotheses:
+In a game of League of Legends, teams are places on two sides of the map: the red side which covers the bottom left side, and the blue side covers the top right side of the map. The game randomly decides which team is going to be on what side. Players are given a differing view of the map (upward or downward view) and their distances to objectives are different. Besides this, both sides are relatively same but are flipped and mirrored versions of each other.  However, we are curious if one side has a higher win rate than the other even though they are set up to be equal. If this is not the case, then this is a factor that would influence winning that isn't controlled by the players gameplay to be mindful of when drawing conclusions from out model. We pose these set of hypotheses:
 
 
 **Null hypothesis**: The blue side and red side have the same likelihood of winning in any pro LoL game.
@@ -121,6 +131,10 @@ In a game of League of Legends, teams are places on two sides of the map: the re
 **Significance level**: 0.05
 
 After conducting a hypothesis test with 10,000 trials, we concluded that we can reject the null hypothesis with a p-value of < 0.0001. There seems to be an advantage of blue side in pro play.
+
+<iframe src="assets/hypothesis_test.html" width="800" height="500" frameborder="0"></iframe>
+
+The red line shows the observed blue side win rate (53.3%), which falls completely outside the null distribution — not a single one of the 10,000 simulations reached it.
 
 ---
 
@@ -148,9 +162,9 @@ This baseline model has an accuracy of 0.5332, which is not much better than the
 
 ## Final Model
 
-**Model choice**: We also created a Decision Tree model and alongside, a Random Forest model to compare to the performance of the logistic regression model. We decided yo use a decision tree to capture non-lineat splits and use a random forest to average many decision trees to reduce overfitting and capture complex interactions.
+**Model choice**: We also created a Decision Tree model and alongside, a Random Forest model to compare to the performance of the logistic regression model. We decided to use a decision tree to capture non-linear splits and use a random forest to average many decision trees to reduce overfitting and capture complex interactions.
 
-The Random Forest model outperformed both Logistic Regression and an untuned Decision Tree on the final feature set, so it was selected as the final model. A random forest model combines multiple decission trees to make a single result.
+The Random Forest model outperformed both Logistic Regression and an untuned Decision Tree on the final feature set, so it was selected as the final model. A random forest model combines multiple decision trees to make a single result.
 
 We used a fixed train/test split using random_state = 42 to ensure a fair comparison. Our model was compared based on test accuracy as stated above
 
@@ -166,7 +180,7 @@ These two features add non-linear relationships that raw stats alone do not capt
 
 This model improved over our Baseline model due to
 - Better feature representation (through our added feature engineering)
-- Captured interactions (due to random forest combinations instead of simple linear/logestic models)
+- Captured interactions (due to random forest combinations instead of simple linear/logistic models)
 - Reduced noise
 
 <iframe src="assets/confusion_matrix.html" width="800" height="500" frameborder="0"></iframe>
