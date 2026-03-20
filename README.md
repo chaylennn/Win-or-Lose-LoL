@@ -1,4 +1,4 @@
-# Win or Lose — League of Legends
+# Win or Lose - League of Legends
 
 **By Chaylen Nguyen-Tran and Jeffrey Kang**
 
@@ -63,7 +63,7 @@ Gold is the in game currency that players recieve for obtaining kills/assists, o
 
 <iframe src="assets/damageshare_by_position.html" width="800" height="500" frameborder="0"></iframe>
 
-Damage share varies a lot by role — supports do less damage while carries (bot, mid) do more. Winners tend to have slightly higher damage shares than losers across most roles, but they generall have around the same mean.
+Damage share varies a lot by role. Supports do less damage while carries (bot, mid) do more. Winners tend to have slightly higher damage shares than losers across most roles, but they generally have around the same mean.
 
 ### Interesting Aggregates
 
@@ -101,7 +101,7 @@ The league permutation test yields a very small p-value of < 0.0001, so we **rej
 
 <iframe src="assets/tvd_league.html" width="800" height="500" frameborder="0"></iframe>
 
-The observed TVD for `league` falls far outside the null distribution — none of the 10,000 simulations came close, confirming the dependency.
+The observed TVD for `league` falls far outside the null distribution. None of the 10,000 simulations came close, confirming the dependency.
 
 The position permutation test yields a p-value of 1.0, so we **fail to reject the null**: missingness does **not depend on position**, which makes sense since all players in a game share the same data completeness.
 
@@ -130,23 +130,24 @@ In a game of League of Legends, teams are places on two sides of the map: the re
 
 **Significance level**: 0.05
 
-After conducting a hypothesis test with 10,000 trials, we concluded that we can reject the null hypothesis with a p-value of < 0.0001. There seems to be an advantage of blue side in pro play.
 
 <iframe src="assets/hypothesis_test.html" width="800" height="500" frameborder="0"></iframe>
 
-The red line shows the observed blue side win rate (53.3%), which falls completely outside the null distribution — not a single one of the 10,000 simulations reached it.
+The red line shows the observed blue side win rate (53.3%), which falls completely outside the null distribution. This means that not a single one of the 10,000 simulations reached it.
+
+After conducting a hypothesis test with 10,000 trials, we concluded that we can reject the null hypothesis with a p-value of < 0.0001. There seems to be an advantage of blue side in pro play.
 
 ---
 
 ## Framing a Prediction Problem
 
-We frame this as a **binary classification** problem: given a player's in-game statistics, predict whether their team **won (1) or lost (0)** the match.
+We want to answer the question of how different players' game performances affect the win rate of a game of League of Legends in pro play, as of 2025. To do this we will combine player statistics from our data fram to predict winning or losing a game of League of Legends. We frame this as a **binary classification** problem: given a player's in-game statistics, predict whether their team **won (1) or lost (0)** the match.
 
-We chose `result` as our response variable because winning is the ultimate objective in League of Legends — understanding which player-level metrics best predict victory directly answers our central question.
+We chose `result` as our response variable because winning is the ultimate objective in League of Legends understanding which player-level metrics best predict victory directly answers our question.
 
 We evaluate our model using **accuracy**, since the dataset is perfectly balanced (every game has exactly one winning team and one losing team, so wins and losses each make up 50% of player rows). A baseline of always predicting the majority class would give 50% accuracy, so anything above that is meaningful.
 
-All features we use — such as `damageshare`, `golddiffat10`, `visionscore`, and `earnedgoldshare` — are statistics recorded during or at the end of a game, so they are available at the time of prediction (i.e., after the game concludes). We are **not** using any features that would only be known after the outcome is determined independently of the game itself.
+All features we use, such as `damageshare`, `golddiffat10`, `visionscore`, and `earnedgoldshare`, are statistics recorded during or at the end of a game, so they are available at the time of prediction (i.e., after the game concludes). We are **not** using any features that would only be known after the outcome is determined independently of the game itself.
 
 ---
 
@@ -156,7 +157,7 @@ The baseline model uses 4 features: `kill_participation` (created from (kills + 
 
 We split our dataset into training and testing data where test_size = 0.2. We trained our data using the training set and then used our model to predict winnning or losing on the test set. This is to account for our model being able to generalize to unseen data and for future pro play matches.
 
-This baseline model has an accuracy of 0.5332, which is not much better than the constant model's accuracy of 0.5. This implies that these stats alone are definitely not great for predicting win/loss. Thinking about it a bit more, maybe these stats alone would be better for a different problem, predicting a player's role from stats. Although that model wouldn't be very useful.
+This baseline model has an accuracy of 0.5332 on the testing data, which is not much better than the constant model's accuracy of 0.5. This implies that these stats alone are definitely not great for predicting win/loss. Thinking about it a bit more, maybe these stats alone would be better for a different problem, predicting a player's role from stats. Although that model wouldn't be very useful.
 
 ---
 
@@ -166,14 +167,14 @@ This baseline model has an accuracy of 0.5332, which is not much better than the
 
 The Random Forest model outperformed both Logistic Regression and an untuned Decision Tree on the final feature set, so it was selected as the final model. A random forest model combines multiple decision trees to make a single result.
 
-We used a fixed train/test split using random_state = 42 to ensure a fair comparison. Our model was compared based on test accuracy as stated above
+We used a fixed train/test split using random_state = 42 to ensure a fair comparison. Our model was compared based on test accuracy as stated above.
 
 **Hyperparameters tuned** via `GridSearchCV` (5-fold CV):
 - `n_estimators`: number of trees in the forest where more trees lead to more stability
 - `max_depth`: maximum depth of each tree (controls overfitting)
 
 **New engineered features**:
-- `damage_efficiency`: `damagetochampions / (deaths + 1)`, measures how much damage a player deals per death (adding 1 to avoid division by zero). A high value means the player is dealing a lot of damage while dying infrequently — buying the right items and playing efficiently.
+- `damage_efficiency`: `damagetochampions / (deaths + 1)`, measures how much damage a player deals per death (adding 1 to avoid division by zero). A high value means the player is dealing a lot of damage while dying infrequently, buying the right items and playing efficiently.
 - `carry_impact`: a weighted score (kill participation 35%, damage share 30%, earned gold share 20%, damage efficiency 10%, vision score 5%) to quantify a player's overall impact. Higher weights on kill participation and damage share, since kills matter the most in League of Legends, kinda like home runs vs almost anything else for a baseball player.
 
 These two features add non-linear relationships that raw stats alone do not capture, which is why the Random Forest achieves higher accuracy than the baseline Logistic Regression model. We also kept the features that we used in the baseline model as well: `kill_participation`, `damageshare`, `earnedgoldshare`, and `visionscore`.
@@ -185,7 +186,7 @@ This model improved over our Baseline model due to
 
 <iframe src="assets/confusion_matrix.html" width="800" height="500" frameborder="0"></iframe>
 
-By this confusion matrix, a figure to evaluate our classification model, our model performs well on both classes making it strong and balanced on predicitive performance, minimizing error rates.
+By this confusion matrix, a figure to evaluate our classification model, our model performs well on both classes making it strong and balanced on predictive performance, minimizing error rates.
 
 ---
 
