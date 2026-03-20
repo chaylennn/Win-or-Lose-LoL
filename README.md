@@ -83,9 +83,13 @@ Supports have drastically lower damage share and gold share but dominate vision 
 
 ## Assessment of Missingness
 
-### MNAR: `teamid`
+### MNAR: `url`
 
-The `teamid` column is **MNAR (Missing Not At Random)** because whether a team has an Oracle's Elixir-assigned ID depends on the team itself and its notability. Established organizations like G2 Esports, Weibo Gaming, and Team Solo Mid have IDs, while obscure amateur teams like *We Can Win* and *Black Dog* do not. We can pretty confidently say that any missing `teamid` value will not be within the existing `teamid`s in the column.
+The `url` column appears to be **MNAR (Missing Not At Random)**. A `url` only exists when a match has an associated Oracle’s Elixir page or official match record. Therefore, when `url` is missing, it likely indicates that the match does not have an associated URL, rather than the value being missing by chance. This means the missingness depends on the existence of the value itself, which is characteristic of **MNAR** data.
+
+To better explain the missingness and potentially treat it as **MAR**, additional data would be helpful. For example, variables such as tournament tier (major vs. minor leagues) could explain why some matches do not have URLs. Oracle’s Elixir may not have recorded certain matches, or a URL may not exist because the match involves lower-tier or less prominent teams with lower competitive rankings. Additionally, missing `url` values could be related to popularity factors, such as audience size or the prominence of individual players.
+
+If missing `url` values can be fully explained by these observed variables—such as lower-tier or less prominent matches being less likely to have recorded URLs—then the missingness could be considered **MAR** instead of **MNAR**. So getting columns such as team ranking, and popularity could answer why the url to access the game stats is missing.
 
 ### Missingness Dependency: `golddiffat10`
 
