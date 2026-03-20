@@ -6,9 +6,9 @@
 
 ## Introduction
 
-League of Legends is a popular PC video game released October 27, 2009 under Riot Games. League of Legends, commonly referred to as "League" or "LoL" for short is a Multiplayer Online Battle Area (MOBA) where 2 teams of 5 where each player controls one of the 172 playable champions (as of March 2026). There are multiple layers or in other words "objectives" each player does in order to win the game such as obtaining kills, killing neutral monsters, destroying enemy towers, and overall invading the other team's base and destroying their enemy's nexus. However, sometimes individual statistics are not enough to predict the game outcome, and individual player statistics need to be compared to the enemy team to see how much deficit or advanced they are, and how good the individual player is doing compared to their own team. League remains one of the top most played PC games with 150+ million registered players. League of Legends has a worldly loved competitive scene commonly referred to as "Pro Play" where people around the globe battle in this online area for money and worldly recognition.
+League of Legends is a popular PC video game released October 27, 2009 under Riot Games. League of Legends, commonly referred to as "League" or "LoL" for short is a Multiplayer Online Battle Arena (MOBA) where 2 teams of 5 where each player controls one of the 172 playable champions (as of March 2026). There are multiple layers or in other words "objectives" each player does in order to win the game such as obtaining kills, killing neutral monsters, destroying enemy towers, and overall invading the other team's base and destroying their enemy's nexus. However, sometimes individual statistics are not enough to predict the game outcome, and individual player statistics need to be compared to the enemy team to see how much deficit or advanced they are, and how good the individual player is doing compared to their own team. League remains one of the top most played PC games with 150+ million registered players. League of Legends has a world-renowned competitive scene commonly referred to as "Pro Play" where competitiors around the globe battle in this online area for money and fame.
 
-Game statistics, as listed above, are carefully watched and followed in order to enhance the likelihood of a team winning in Pro Play. But, the question remains: How do these game statistics interact with each other, and which ones are more important, in respect to winning a game of League of Legends.
+Game statistics, as listed above, are carefully watched and followed in order to enhance the likelihood of a team winning in Pro Play. But, the question remains: How do these game statistics interact with each other, and which ones are more important, with respect to winning a game of League of Legends.
 
 In this project, we are answering the question of how different players' game performances affect the win rate of a game of League of Legends in pro play, as of 2025.
 
@@ -49,7 +49,7 @@ Here is a sample of the cleaned DataFrame:
 
 <iframe src="assets/damageshare_by_role.html" width="800" height="500" frameborder="0"></iframe>
 
-The overall damage share distribution looks like an unusual multi-modal shape. Once broken down by role, the pattern makes sense: each role has its own distinct damage share distribution, kind of like how if we graphed shots on goal in soccer on all players, the defenders would be included with the attackers so the histogram would look like overlaid separate distributions. Support has overall lower damage share for example because their role in the game is provide buffs and protect the other players on the team. It is also interesting to note that the variance in each of the role's distributions with supports having the least (they roughly do around the same damage) while bot has the largest spread (some bot laners do way more than others) 
+The overall damage share distribution looks like an unusual multi-modal shape. Once broken down by role, the pattern makes sense: each role has its own distinct damage share distribution, kind of like how if we graphed shots on goal in soccer on all players, the defenders would be included with the attackers so the histogram would look like overlaid separate distributions. Support has overall lower damage share for example because their role in the game is to provide buffs and protect the other players on the team. It is also interesting to note that the variance in each of the role's distributions with supports having the least (they roughly do around the same damage) while bot has the largest spread (some bot laners do way more than others) 
 
 <iframe src="assets/visionscore_by_role.html" width="800" height="500" frameborder="0"></iframe>
 
@@ -59,7 +59,7 @@ Looks like supports are the primary vision getters, their vision score distribut
 
 <iframe src="assets/golddiff_by_result.html" width="800" height="500" frameborder="0"></iframe>
 
-Gold is the in game currency that players recieve for obtaining kills/assists, objectives, and creep score (killing enemy minions, jungle monsters, etc.). This currency is then used to buy in-game items that help the individual scale their player stats (stat increases include attack damage, movement speed, health, etc.). Players on winning teams have a noticeably higher gold difference at 10 minutes on average, suggesting early gold leads correlate with winning the game.
+Gold is the in game currency that players receive for obtaining kills/assists, objectives, and creep score (killing enemy minions, jungle monsters, etc.). This currency is then used to buy in-game items that help the individual scale their player stats (stat increases include attack damage, movement speed, health, etc.). Players on winning teams have a noticeably higher gold difference at 10 minutes on average, suggesting early gold leads correlate with winning the game.
 
 <iframe src="assets/damageshare_by_position.html" width="800" height="500" frameborder="0"></iframe>
 
@@ -77,7 +77,7 @@ Average damage share, earned gold share, and vision score by role:
 | sup | 0.086 | 0.091 | 67.4 |
 | top | 0.205 | 0.255 | 20.8 |
 
-Supports have drastically lower damage share and gold share but dominate vision score. Game stats vary by postion; What is considered "winning" in one role is different from the stats of winning in a different role. This role specialization is central to understanding why our baseline model struggled.
+Supports have drastically lower damage share and gold share but dominate vision score. Game stats vary by position. What is considered "winning" in one role is different from the stats of winning in a different role. This role specialization is central to understanding why our baseline model struggled.
 
 ---
 
@@ -103,27 +103,21 @@ We picked `golddiffat10` as our column to analyze, since around 8% of player row
 
 The league permutation test yields a very small p-value of < 0.0001, so we **reject the null**: missingness of `golddiffat10` is **MAR on league** (some leagues consistently have incomplete early-game data).
 
-<iframe src="assets/tvd_league.html" width="800" height="500" frameborder="0"></iframe>
-
-The observed TVD for `league` falls far outside the null distribution. None of the 10,000 simulations came close, confirming the dependency.
-
 The position permutation test yields a p-value of 1.0, so we **fail to reject the null**: missingness does **not depend on position**, which makes sense since all players in a game share the same data completeness.
-
-<iframe src="assets/tvd_position.html" width="800" height="500" frameborder="0"></iframe>
-
-The observed TVD for `position` sits right in the middle of the null distribution, confirming there is no dependency.
 
 <iframe src="assets/missingness_by_position.html" width="800" height="500" frameborder="0"></iframe>
 
+Looks like a uniform distribution, so we can probably say that for a few games, regardless of position, the `golddiffat10` values are missing.
+
 <iframe src="assets/missingness_by_league.html" width="800" height="500" frameborder="0"></iframe>
 
-Strangely, it looks like all the missing `golddiffat10` is all in LPL, China's league. While China is one of the strongest regions in LoL esports, it looks like China might be limiting its data from being easy-access.
+Strangely, it looks like all the missing `golddiffat10` is all in LPL, China's league. While China is one of the strongest regions in LoL esports, it might be the case that China is limiting its data from being easy-access.
 
 ---
 
 ## Hypothesis Testing
 
-In a game of League of Legends, teams are places on two sides of the map: the red side which covers the bottom left side, and the blue side covers the top right side of the map. The game randomly decides which team is going to be on what side. Players are given a differing view of the map (upward or downward view) and their distances to objectives are different. Besides this, both sides are relatively same but are flipped and mirrored versions of each other.  However, we are curious if one side has a higher win rate than the other even though they are set up to be equal. If this is not the case, then this is a factor that would influence winning that isn't controlled by the players gameplay to be mindful of when drawing conclusions from out model. We pose these set of hypotheses:
+In a game of League of Legends, teams are based on two opposite sides of the map: the red side which covers the bottom left side, and the blue side covers the top right side of the map. The game randomly decides which team is going to be on what side. Players are given a differing view of the map (upward or downward view) and their distances to objectives are different. Besides this, both sides are relatively the same but are flipped and mirrored versions of each other.  However, we are curious if one side has a higher win rate than the other even though they are set up to be equal, due to factors like distance to objectives and camera angles. If this is not the case, then this is a factor that would influence winning that isn't controlled by the players' gameplay to be mindful of when drawing conclusions from our model. We pose this set of hypotheses:
 
 
 **Null hypothesis**: The blue side and red side have the same likelihood of winning in any pro LoL game.
@@ -139,15 +133,15 @@ In a game of League of Legends, teams are places on two sides of the map: the re
 
 The red line shows the observed blue side win rate (53.3%), which falls completely outside the null distribution. This means that not a single one of the 10,000 simulations reached it.
 
-After conducting a hypothesis test with 10,000 trials, we concluded that we can reject the null hypothesis with a p-value of < 0.0001. There seems to be an advantage of blue side in pro play.
+After conducting a hypothesis test with 10,000 trials, we rejected the null hypothesis with a p-value of < 0.0001. There seems to be an advantage of blue side in pro play.
 
 ---
 
 ## Framing a Prediction Problem
 
-We want to answer the question of how different players' game performances affect the win rate of a game of League of Legends in pro play, as of 2025. To do this we will combine player statistics from our data fram to predict winning or losing a game of League of Legends. We frame this as a **binary classification** problem: given a player's in-game statistics, predict whether their team **won (1) or lost (0)** the match.
+We want to answer the question of how different players' game performances affect the win rate of a game of League of Legends in pro play, as of 2025. To do this we will combine player statistics from our data frame to predict winning or losing a game of League of Legends. We frame this as a **binary classification** problem: given a player's in-game statistics, predict whether their team **won (1) or lost (0)** the match.
 
-We chose `result` as our response variable because winning is the ultimate objective in League of Legends understanding which player-level metrics best predict victory directly answers our question.
+We chose `result` as our response variable because winning is the ultimate objective in League of Legends, so understanding which player-level metrics best predict victory is very meaningful.
 
 We evaluate our model using **accuracy**, since the dataset is perfectly balanced (every game has exactly one winning team and one losing team, so wins and losses each make up 50% of player rows). A baseline of always predicting the majority class would give 50% accuracy, so anything above that is meaningful.
 
@@ -159,7 +153,7 @@ All features we use, such as `damageshare`, `golddiffat10`, `visionscore`, and `
 
 The baseline model uses 4 features: `kill_participation` (created from (kills + assists) / teamkills), `damageshare`, `earnedgoldshare`, and `visionscore`, all run through a `StandardScaler` + `LogisticRegression` Pipeline. These are all quantitative features, so there's no categorical encoding needed here.
 
-We split our dataset into training and testing data where test_size = 0.2. We trained our data using the training set and then used our model to predict winnning or losing on the test set. This is to account for our model being able to generalize to unseen data and for future pro play matches.
+We split our dataset into training and testing data where test_size = 0.2. We trained our data using the training set and then used our model to predict winning or losing on the test set. This is to account for our model being able to generalize to unseen data and for future pro play matches.
 
 This baseline model has an accuracy of 0.5332 on the testing data, which is not much better than the constant model's accuracy of 0.5. This implies that these stats alone are definitely not great for predicting win/loss. Thinking about it a bit more, maybe these stats alone would be better for a different problem, predicting a player's role from stats. Although that model wouldn't be very useful.
 
@@ -167,7 +161,7 @@ This baseline model has an accuracy of 0.5332 on the testing data, which is not 
 
 ## Final Model
 
-**Model choice**: We also created a Decision Tree model and alongside, a Random Forest model to compare to the performance of the logistic regression model. We decided to use a decision tree to capture non-linear splits and use a random forest to average many decision trees to reduce overfitting and capture complex interactions.
+**Model choice**: We also created a Decision Tree model and alongside, a Random Forest model to compare to the performance of the logistic regression model. We decided to use a decision tree to capture non-linear splits, then finally we decided to use a random forest to average many decision trees to reduce overfitting and capture complex interactions.
 
 The Random Forest model outperformed both Logistic Regression and an untuned Decision Tree on the final feature set, so it was selected as the final model. A random forest model combines multiple decision trees to make a single result.
 
@@ -176,6 +170,8 @@ We used a fixed train/test split using random_state = 42 to ensure a fair compar
 **Hyperparameters tuned** via `GridSearchCV` (5-fold CV):
 - `n_estimators`: number of trees in the forest where more trees lead to more stability
 - `max_depth`: maximum depth of each tree (controls overfitting)
+
+`GridSearchCV` chose **`n_estimators = 50`** and **`max_depth = 10`** as the best settings, with best mean cross validation accuracy equal to about **0.837**. On the test set, this tuned Random Forest achieved around **0.834** accuracy, compared to **0.533** for the baseline. So clearly, the new features and tuning helped generalization compared to the baseline model.
 
 **New engineered features**:
 - `damage_efficiency`: `damagetochampions / (deaths + 1)`, measures how much damage a player deals per death (adding 1 to avoid division by zero). A high value means the player is dealing a lot of damage while dying infrequently, buying the right items and playing efficiently.
@@ -190,7 +186,7 @@ This model improved over our Baseline model due to
 
 <iframe src="assets/confusion_matrix.html" width="800" height="500" frameborder="0"></iframe>
 
-By this confusion matrix, a figure to evaluate our classification model, our model performs well on both classes making it strong and balanced on predictive performance, minimizing error rates.
+By looking at this confusion matrix, a figure to evaluate our classification model, we can tell that our model performs well on both classes making it strong and balanced on predictive performance, minimizing error rates.
 
 ---
 
@@ -199,7 +195,7 @@ By this confusion matrix, a figure to evaluate our classification model, our mod
 Since a lot of our player performance metrics are based on damage and kills, a valid concern is that this model is biased against support players, whose primary role isn't to deal damage and/or participate in kills. The model might have learned that low damage/kill stats correlate with losing, and will systematically predict supports as losers even when their team wins.
 
 **Groups:**
-- **Group X**: Players which have Support as their position
+- **Group X**: Players who have Support as their position
 - **Group Y**: All other positions (Top, Middle, Bottom, Jungle)
 
 **Evaluation metric**: False Negative Rate, the proportion of actual wins that the model incorrectly predicts as losses
@@ -212,4 +208,4 @@ Since a lot of our player performance metrics are based on damage and kills, a v
 
 **Significance level**: 0.05
 
-Based on the p-value of 0.003 we reject the null, which suggests that the model has a higher false negative rate for supports, unfairly underpredicting wins for support players.
+Based on the p-value of 0.003 we reject the null, which suggests that our model has a higher false negative rate for supports, unfairly underpredicting wins for support players.
