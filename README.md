@@ -1,4 +1,4 @@
-# GG or FF? Predicting Outcomes in Pro League of Legends
+# GG or FF? Predicting Pro League of Legends Outcomes
 
 **By Chaylen Nguyen-Tran and Jeffrey Kang**
 
