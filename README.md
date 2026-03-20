@@ -1,4 +1,4 @@
-# Win or Lose - League of Legends
+# GG or FF? Predicting Outcomes in Pro League of Legends
 
 **By Chaylen Nguyen-Tran and Jeffrey Kang**
 
